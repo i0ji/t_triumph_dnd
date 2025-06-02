@@ -1,0 +1,26 @@
+* {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100vh;
+}
+
+body {
+  max-width: 1000px;
+  height: 100%;
+
+  margin: 0 auto;
+
+  background-color: #c8c8c8;
+
+  font-family: Arial, sans-serif;
+}

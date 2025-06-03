@@ -43,60 +43,14 @@ export class BufferZone extends HTMLElement {
     this.shadowRoot!.appendChild(
       template.content.cloneNode(true)
     );
-
     this.svg = this.shadowRoot!.querySelector('svg')!;
   }
 
-  //OPTION WORKING ONE
-  // public createRandomPolygon() {
-  //   const svgWidth = this.svg.clientWidth || 400;
-  //   const svgHeight = this.svg.clientHeight || 400;
-  //   const centerX = svgWidth / 2;
-  //   const centerY = svgHeight / 2;
+  //CURRENT
+  connectedCallback() {
+    this.loadFromStorage();
+  }
 
-  //   const vertexCount = this.randomInt(3, 5);
-
-  //
-  //   const angleStep = (2 * Math.PI) / vertexCount;
-  //   const angles: number[] = [];
-  //   for (let i = 0; i < vertexCount; i++) {
-  //
-  //     const randomOffset =
-  //       (Math.random() - 0.5) * angleStep * 0.3;
-  //     angles.push(i * angleStep + randomOffset);
-  //   }
-
-  //   const minRadius = (Math.min(svgWidth, svgHeight) * 0.3) / 2;
-  //   const maxRadius = (Math.min(svgWidth, svgHeight) * 0.9) / 2;
-
-  //   const points: string[] = angles.map((angle) => {
-  //     const radius = this.randomFloat(minRadius, maxRadius);
-  //     const x = centerX + radius * Math.cos(angle);
-  //     const y = centerY + radius * Math.sin(angle);
-  //     return `${x.toFixed(2)},${y.toFixed(2)}`;
-  //   });
-
-  //   const polygon = document.createElementNS(
-  //     'http://www.w3.org/2000/svg',
-  //     'polygon'
-  //   );
-  //   polygon.setAttribute('points', points.join(' '));
-  //   polygon.setAttribute('fill', 'rgba(100, 149, 237, 0.6)');
-  //   polygon.setAttribute('stroke', '#6495ed');
-  //   polygon.setAttribute('stroke-width', '2');
-
-  //   polygon.addEventListener('click', () => polygon.remove());
-
-  //   this.svg.appendChild(polygon);
-  // }
-
-  // private randomInt(min: number, max: number): number {
-  //   return Math.floor(Math.random() * (max - min + 1)) + min;
-  // }
-
-  // private randomFloat(min: number, max: number): number {
-  //   return Math.random() * (max - min) + min;
-  // }
   public createRandomPolygon() {
     const svgWidth = this.svg.clientWidth || 400;
     const svgHeight = this.svg.clientHeight || 400;
@@ -137,6 +91,7 @@ export class BufferZone extends HTMLElement {
     polygon.addEventListener('click', () => polygon.remove());
 
     this.svg.appendChild(polygon);
+    //CURRENT
   }
 
   private randomInt(min: number, max: number): number {
@@ -145,6 +100,75 @@ export class BufferZone extends HTMLElement {
 
   private randomFloat(min: number, max: number): number {
     return Math.random() * (max - min) + min;
+  }
+
+  public clear() {
+    while (this.svg.firstChild) {
+      this.svg.removeChild(this.svg.firstChild);
+    }
+    localStorage.removeItem('bufferZonePolygons');
+  }
+
+  //CURRENT
+  public save() {
+    const polygons = Array.from(
+      this.svg.querySelectorAll('polygon')
+    ).map((polygon) => ({
+      points: polygon.getAttribute('points'),
+      fill: polygon.getAttribute('fill'),
+      stroke: polygon.getAttribute('stroke'),
+      strokeWidth: polygon.getAttribute('stroke-width'),
+    }));
+
+    localStorage.setItem(
+      'bufferZonePolygons',
+      JSON.stringify(polygons)
+    );
+    console.log(
+      'BufferZone: сохранено',
+      polygons.length,
+      'полигонов'
+    );
+  }
+
+  private loadFromStorage() {
+    const data = localStorage.getItem('bufferZonePolygons');
+    if (!data) return;
+
+    try {
+      const polygons = JSON.parse(data) as Array<{
+        points: string | null;
+        fill: string | null;
+        stroke: string | null;
+        strokeWidth: string | null;
+      }>;
+
+      polygons.forEach(
+        ({ points, fill, stroke, strokeWidth }) => {
+          if (!points) return;
+          const polygon = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'polygon'
+          );
+          polygon.setAttribute('points', points);
+          if (fill) polygon.setAttribute('fill', fill);
+          if (stroke) polygon.setAttribute('stroke', stroke);
+          if (strokeWidth)
+            polygon.setAttribute('stroke-width', strokeWidth);
+
+          polygon.addEventListener('click', () => {
+            polygon.remove();
+          });
+
+          this.svg.appendChild(polygon);
+        }
+      );
+    } catch (e) {
+      console.error(
+        'Ошибка при загрузке полигона из localStorage',
+        e
+      );
+    }
   }
 }
 

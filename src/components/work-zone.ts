@@ -133,7 +133,6 @@ export class WorkZone extends HTMLElement {
     this.renderFixedAxes();
   }
 
-  // Сетка масштабируется и сдвигается вместе с содержимым
   private renderGrid() {
     while (this.gridGroup.firstChild)
       this.gridGroup.removeChild(this.gridGroup.firstChild);
@@ -191,17 +190,13 @@ export class WorkZone extends HTMLElement {
     );
   }
 
-  // Фиксированные оси и шкалы слева и снизу, не масштабируются и не двигаются
   private renderFixedAxes() {
     while (this.axesFixedGroup.firstChild)
       this.axesFixedGroup.removeChild(
         this.axesFixedGroup.firstChild
       );
 
-    const axisThickness = 40; // ширина/высота осей в px
-    const stepPx = 10; // шаг делений в пикселях (фиксирован)
 
-    // Фон осей
     const axisYBg = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'rect'
@@ -227,7 +222,6 @@ export class WorkZone extends HTMLElement {
     axisXBg.setAttribute('fill', '#f0f0f0');
     this.axesFixedGroup.appendChild(axisXBg);
 
-    // Вертикальная ось (слева)
     const axisLineY = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'line'
@@ -239,7 +233,6 @@ export class WorkZone extends HTMLElement {
     axisLineY.setAttribute('class', 'axis-line');
     this.axesFixedGroup.appendChild(axisLineY);
 
-    // Горизонтальная ось (снизу)
     const axisLineX = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'line'
@@ -257,7 +250,6 @@ export class WorkZone extends HTMLElement {
     axisLineX.setAttribute('class', 'axis-line');
     this.axesFixedGroup.appendChild(axisLineX);
 
-    // Деления и подписи по вертикальной оси (слева)
     for (let y = 0; y <= this.height; y += stepPx) {
       if (y > this.height - axisThickness) break;
 
@@ -287,7 +279,6 @@ export class WorkZone extends HTMLElement {
       this.axesFixedGroup.appendChild(text);
     }
 
-    // Деления и подписи по горизонтальной оси (снизу)
     for (let x = axisThickness; x <= this.width; x += stepPx) {
       if (x > this.width) break;
 
@@ -373,7 +364,6 @@ export class WorkZone extends HTMLElement {
   }
 
   private renderContent() {
-    // Очистка
     while (this.gridGroup.firstChild)
       this.gridGroup.removeChild(this.gridGroup.firstChild);
     while (this.contentGroup.firstChild)
@@ -381,9 +371,7 @@ export class WorkZone extends HTMLElement {
         this.contentGroup.firstChild
       );
 
-    const step = 10; // шаг в логических координатах
 
-    // Рисуем сетку
     const viewWidth = this.width / this.scale;
     const viewHeight = this.height / this.scale;
 
@@ -413,7 +401,6 @@ export class WorkZone extends HTMLElement {
       this.gridGroup.appendChild(line);
     }
 
-    // Рисуем оси (X и Y)
     const axisX = document.createElementNS(
       'http://www.w3.org/2000/svg',
       'line'
@@ -436,7 +423,6 @@ export class WorkZone extends HTMLElement {
     axisY.setAttribute('class', 'axis-line');
     this.contentGroup.appendChild(axisY);
 
-    // Деления и подписи по X
     for (let x = 0; x <= viewWidth; x += step) {
       const tick = document.createElementNS(
         'http://www.w3.org/2000/svg',
@@ -462,7 +448,6 @@ export class WorkZone extends HTMLElement {
       this.contentGroup.appendChild(text);
     }
 
-    // Деления и подписи по Y
     for (let y = 0; y <= viewHeight; y += step) {
       const tick = document.createElementNS(
         'http://www.w3.org/2000/svg',

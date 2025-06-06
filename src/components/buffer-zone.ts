@@ -2,7 +2,6 @@ const template = document.createElement('template');
 template.innerHTML = `
   <style>
     section {
-
       height: 40vh;
       width: 100%;
 

@@ -1,6 +1,8 @@
+import * as d3 from "d3";
+
 const template = document.createElement("template");
 template.innerHTML = `
- <style>
+  <style>
     section {
       height: 40vh;
       width: 100%;
@@ -29,5 +31,8 @@ template.innerHTML = `
   <section> 
     <svg></svg>
   </section>
-
 `;
+
+export class WorkZone extends HTMLElement {}
+
+customElements.define("work-zone", WorkZone);

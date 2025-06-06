@@ -29,7 +29,6 @@ template.innerHTML = `
   <section> 
     <svg></svg>
   </section>
-
 `;
 
 export class BufferZone extends HTMLElement {
@@ -37,15 +36,11 @@ export class BufferZone extends HTMLElement {
 
   constructor() {
     super();
-
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot!.appendChild(
-      template.content.cloneNode(true)
-    );
+    this.shadowRoot!.appendChild(template.content.cloneNode(true));
     this.svg = this.shadowRoot!.querySelector('svg')!;
   }
 
-  //CURRENT
   connectedCallback() {
     this.loadFromStorage();
   }
@@ -59,12 +54,11 @@ export class BufferZone extends HTMLElement {
     const centerY = this.randomFloat(margin, svgHeight - margin);
 
     const vertexCount = this.randomInt(3, 5);
-
     const angleStep = (2 * Math.PI) / vertexCount;
     const angles: number[] = [];
+
     for (let i = 0; i < vertexCount; i++) {
-      const randomOffset =
-        (Math.random() - 0.5) * angleStep * 0.3;
+      const randomOffset = (Math.random() - 0.5) * angleStep * 0.3;
       angles.push(i * angleStep + randomOffset);
     }
 
@@ -78,19 +72,26 @@ export class BufferZone extends HTMLElement {
       return `${x.toFixed(2)},${y.toFixed(2)}`;
     });
 
-    const polygon = document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      'polygon'
-    );
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     polygon.setAttribute('points', points.join(' '));
-    polygon.setAttribute('fill', 'rgba(100, 149, 237, 0.6)');
-    polygon.setAttribute('stroke', '#6495ed');
+    polygon.setAttribute('fill', 'rgba(142, 0, 38, 0.6)');
+    polygon.setAttribute('stroke', '#8e0026');
     polygon.setAttribute('stroke-width', '2');
+    polygon.setAttribute('draggable', 'true');
 
-    polygon.addEventListener('click', () => polygon.remove());
+    polygon.addEventListener('dragstart', (e) => {
+      if (e.dataTransfer) {
+        e.dataTransfer.setData('text/plain', points.join(' '));
+        e.dataTransfer.effectAllowed = 'move';
+        polygon.style.opacity = '0.5';
+      }
+    });
+
+    polygon.addEventListener('dragend', () => {
+      polygon.style.opacity = '1';
+    });
 
     this.svg.appendChild(polygon);
-    //CURRENT
   }
 
   private randomInt(min: number, max: number): number {
@@ -108,26 +109,16 @@ export class BufferZone extends HTMLElement {
     localStorage.removeItem('bufferZonePolygons');
   }
 
-  //CURRENT
   public save() {
-    const polygons = Array.from(
-      this.svg.querySelectorAll('polygon')
-    ).map((polygon) => ({
+    const polygons = Array.from(this.svg.querySelectorAll('polygon')).map((polygon) => ({
       points: polygon.getAttribute('points'),
       fill: polygon.getAttribute('fill'),
       stroke: polygon.getAttribute('stroke'),
       strokeWidth: polygon.getAttribute('stroke-width'),
     }));
 
-    localStorage.setItem(
-      'bufferZonePolygons',
-      JSON.stringify(polygons)
-    );
-    console.log(
-      'BufferZone: сохранено',
-      polygons.length,
-      'полигонов'
-    );
+    localStorage.setItem('bufferZonePolygons', JSON.stringify(polygons));
+    console.log('BufferZone: сохранено', polygons.length, 'полигонов');
   }
 
   private loadFromStorage() {
@@ -142,31 +133,20 @@ export class BufferZone extends HTMLElement {
         strokeWidth: string | null;
       }>;
 
-      polygons.forEach(
-        ({ points, fill, stroke, strokeWidth }) => {
-          if (!points) return;
-          const polygon = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'polygon'
-          );
-          polygon.setAttribute('points', points);
-          if (fill) polygon.setAttribute('fill', fill);
-          if (stroke) polygon.setAttribute('stroke', stroke);
-          if (strokeWidth)
-            polygon.setAttribute('stroke-width', strokeWidth);
+      polygons.forEach(({ points, fill, stroke, strokeWidth }) => {
+        if (!points) return;
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', points);
+        if (fill) polygon.setAttribute('fill', fill);
+        if (stroke) polygon.setAttribute('stroke', stroke);
+        if (strokeWidth) polygon.setAttribute('stroke-width', strokeWidth);
 
-          polygon.addEventListener('click', () => {
-            polygon.remove();
-          });
+        polygon.addEventListener('click', () => polygon.remove());
 
-          this.svg.appendChild(polygon);
-        }
-      );
+        this.svg.appendChild(polygon);
+      });
     } catch (e) {
-      console.error(
-        'Ошибка при загрузке полигона из localStorage',
-        e
-      );
+      console.error('Ошибка при загрузке полигона из localStorage', e);
     }
   }
 }

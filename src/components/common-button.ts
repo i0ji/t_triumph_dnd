@@ -61,6 +61,7 @@ export class CommonButton extends HTMLElement {
     }
   }
 
+  // Свойство для удобного доступа к mode
   get mode(): ButtonMode {
     return this._mode;
   }
@@ -75,12 +76,8 @@ export class CommonButton extends HTMLElement {
     }
   }
 
-  private isValidMode(
-    value: string | null
-  ): value is ButtonMode {
-    return (
-      value === 'create' || value === 'save' || value === 'clear'
-    );
+  private isValidMode(value: string | null): value is ButtonMode {
+    return value === 'create' || value === 'save' || value === 'clear';
   }
 
   private updateButtonText() {
@@ -106,22 +103,6 @@ export class CommonButton extends HTMLElement {
         composed: true,
       })
     );
-    if (this._mode === 'clear') {
-      this.dispatchEvent(
-        new CustomEvent(`common-button-clear`, {
-          bubbles: true,
-          composed: true,
-        })
-      );
-    }
-    if (this._mode === 'save') {
-      this.dispatchEvent(
-        new CustomEvent(`common-button-save`, {
-          bubbles: true,
-          composed: true,
-        })
-      );
-    }
   };
 }
 
